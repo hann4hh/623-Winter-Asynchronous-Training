@@ -1,0 +1,111 @@
+package frc.robot.commands;
+
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
+import swervelib.SwerveDrive;
+import wpi.first.math.kinematics.ChassisSpeeds;
+
+import java.util.Set;
+
+/**
+ * reads joystick info and sends it to the drivetrain subsystem
+ */
+public class DriveCommand extends Command {
+   //variable drivetreain
+   Drivetrain drivetrain;
+   DriveSubsystem driveSubsystem;
+   DoubleSupplier xSupplier;
+   DoubleSupplier ySupplier;
+   DoubleSupplier thetaSupplier;
+   
+
+   /**
+    * constructor for DriveCommand
+    * @param xSupplier the supplier for the x-axis movement
+    * @param ySupplier the supplier for the y-axis movement
+    * @param thetaSupplier the supplier for the rotational movement
+    * @param drivetrain the drivetrain subsystem
+    */
+   public DriveCommand(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier thetaSupplier, Drivetrain drivetrain){
+    this.xSupplier = xSupplier;
+    this.ySupplier = ySupplier;
+    this.thetaSupplier = thetaSupplier;
+    this.drivetrain = drivetrain;
+   }
+   
+    /**
+     * code to run when the command starts
+     */
+    @Override
+    public void initialize(){
+        // code
+    }
+
+    /**
+     * code to run repeatedly while the command is running
+     */
+    @Override
+    public void execute(){
+        drivetrain.swerveDrive(new ChassisSpeeds(xSupplier.getAsDouble(), ySupplier.getAsDouble(), thetaSupplier.getAsDouble()));
+    }
+
+    /**
+     * code to run when the command ends
+     * @param interrupted whether the command was interrupted
+     */
+    @Override
+    public void end(boolean interrupted){
+        drivetrain.swerveDrive(new ChassisSpeeds(0, 0, 0));
+    }
+
+    /**
+     * gets the requirements for the command
+     * @return set of requirements
+     */
+    @Override
+    public HashSet<DoubleSupplier<Drivetrain>> getRequirements(){
+        return HashSet.of(() -> drivetrain);
+    }
+
+    /**
+     * indicates whether the command runs when the robot is disabled
+     * @return true if the command runs when disabled, false otherwise
+     */
+    public boolean runsWhenDisabled(){
+        return false;
+    }
+
+    /**
+     * gets the interruption behavior for the command
+     * @return the interruption behavior
+     */
+    public Command.InterruptionBehavior getInterruptionBehavior(){
+        return Command.InterruptionBehavior.kCancelSelf;
+    }
+
+    /**
+     * applies a deadzone to a joystick input
+     * @param value the joystick input
+     * @param deadzone the deadzone threshold
+     * @return the adjusted joystick input
+     */
+    public double deadzone(double value, double deadzone){
+        if(Math.abs(value) < deadzone)
+            return 0;
+        else
+            return value;
+    }
+
+    /**
+     * indicates whether the command is finished
+     * @return true if the command is finished, false otherwise
+     */
+    @Override
+    public boolean isFinished(){
+        return false;
+    }
+
+}
